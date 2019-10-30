@@ -9,6 +9,7 @@ Compiler Features:
  * SMTChecker: Support assignments to multi-dimensional arrays and mappings.
  * SMTChecker: Support inheritance and function overriding.
  * EWasm: Experimental EWasm binary output.
+ * Standard JSON Interface: Output the storage layout of a contract when artifact ``storageLayout`` is requested.
 
 
 Bugfixes:

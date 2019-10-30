@@ -88,6 +88,234 @@ by checking if the lowest bit is set: short (not set) and long (set).
 .. note::
   Handling invalidly encoded slots is currently not supported but may be added in the future.
 
+JSON Output
+===========
+
+The storage layout of a contract can be requested via the :ref:`standard JSON interface <compiler-api>`.  The output is a JSON object containing two keys,
+``storage`` and ``types``.  The ``storage`` object is an array where each
+element has the following form:
+
+
+.. code::
+
+
+    {
+        "ast_id":"2",
+        "contract":"A",
+        "label":"x",
+        "offset":"0",
+        "slot":"0",
+        "type":"t_uint256"
+    }
+
+where the example above is the storage layout of ``contract A { uint x; }``
+and
+
+- ``ast_id`` is the id of the AST node of the state variable
+- ``contract`` is the name of the contract
+- ``label`` is the name of the state variable
+- ``offset`` is the offset within the storage slot according to the encoding
+- ``slot`` is the storage slot where the state variable resides
+- ``type`` is an identifier used as key to the variable's type information
+
+The given ``type``, in this case ``t_uint256`` represents an element in
+``types``, which has the form:
+
+
+.. code::
+
+    {
+        "encoding":"inplace",
+        "label":"uint256",
+        "numberOfBytes":"32",
+        "numberOfSlots":"1"
+    }
+
+where
+
+- ``encoding`` tells how the data is stored
+- ``label`` is the canonical type name
+- ``numberOfBytes`` the number of bytes that this type occupies within a slot
+- ``numberOfSlots`` the number of slots that this type requires in storage
+
+Some types have extra information besides the four above. Mappings contain
+its ``key`` and ``value`` types, arrays have its ``base`` type, and structs
+list its ``members`` similarly to key ``storage``.
+
+The following example shows a contract and its storage layout, containing
+value and reference types, types that are encoded packed, and nested types.
+
+
+.. code::
+
+    pragma solidity >=0.4.0 <0.7.0;
+    contract A {
+        struct S {
+            uint128 a;
+            uint128 b;
+            uint[2] staticArray;
+            uint[] dynArray;
+        }
+
+        uint x;
+        uint y;
+        S s;
+        address addr;
+        mapping (uint => mapping (address => bool)) map;
+        uint[] array;
+    }
+
+.. code::
+
+  "storageLayout": {
+    "storage": [
+      {
+        "ast_id": "14",
+        "contract": "A",
+        "label": "x",
+        "offset": "0",
+        "slot": "0",
+        "type": "t_uint256"
+      },
+      {
+        "ast_id": "16",
+        "contract": "A",
+        "label": "y",
+        "offset": "0",
+        "slot": "1",
+        "type": "t_uint256"
+      },
+      {
+        "ast_id": "18",
+        "contract": "A",
+        "label": "s",
+        "offset": "0",
+        "slot": "2",
+        "type": "t_struct(S)12_storage"
+      },
+      {
+        "ast_id": "20",
+        "contract": "A",
+        "label": "addr",
+        "offset": "0",
+        "slot": "6",
+        "type": "t_address"
+      },
+      {
+        "ast_id": "26",
+        "contract": "A",
+        "label": "map",
+        "offset": "0",
+        "slot": "7",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+      },
+      {
+        "ast_id": "29",
+        "contract": "A",
+        "label": "array2",
+        "offset": "0",
+        "slot": "8",
+        "type": "t_array(t_uint256)dyn_storage"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20",
+        "numberOfSlots": "1"
+      },
+      "t_array(t_uint256)2_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[2]",
+        "numberOfBytes": "32",
+        "numberOfSlots": "2"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32",
+        "numberOfSlots": "1"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1",
+        "numberOfSlots": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "numberOfSlots": "1",
+        "value": "t_bool"
+      },
+      "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "numberOfSlots": "1",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_struct(S)12_storage": {
+        "encoding": "inplace",
+        "label": "struct A.S",
+        "members": [
+          {
+            "ast_id": "2",
+            "contract": "A",
+            "label": "a",
+            "offset": "0",
+            "slot": "0",
+            "type": "t_uint128"
+          },
+          {
+            "ast_id": "4",
+            "contract": "A",
+            "label": "b",
+            "offset": "16",
+            "slot": "0",
+            "type": "t_uint128"
+          },
+          {
+            "ast_id": "8",
+            "contract": "A",
+            "label": "array",
+            "offset": "0",
+            "slot": "1",
+            "type": "t_array(t_uint256)2_storage"
+          },
+          {
+            "ast_id": "11",
+            "contract": "A",
+            "label": "aaa",
+            "offset": "0",
+            "slot": "3",
+            "type": "t_array(t_uint256)dyn_storage"
+          }
+        ],
+        "numberOfBytes": "32",
+        "numberOfSlots": "4"
+      },
+      "t_uint128": {
+        "encoding": "inplace",
+        "label": "uint128",
+        "numberOfBytes": "16",
+        "numberOfSlots": "1"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32",
+        "numberOfSlots": "1"
+      }
+    }
+  }
+
 .. index: memory layout
 
 ****************
