@@ -8,6 +8,8 @@ Miscellaneous
 Layout of State Variables in Storage
 ************************************
 
+.. _storage-inplace-encoding:
+
 Statically-sized variables (everything except mapping and dynamically-sized array types) are laid out contiguously in storage starting from position ``0``. Multiple, contiguous items that need less than 32 bytes are packed into a single storage slot if possible, according to the following rules:
 
 - The first item in a storage slot is stored lower-order aligned.
@@ -48,6 +50,8 @@ The elements of structs and arrays are stored after each other, just as if they 
 
 Mappings and Dynamic Arrays
 ===========================
+
+.. _storage-hashed-encoding:
 
 Due to their unpredictable size, mapping and dynamically-sized array types use a Keccak-256 hash
 computation to find the starting position of the value or the array data. These starting positions are always full stack slots.
@@ -91,6 +95,8 @@ by checking if the lowest bit is set: short (not set) and long (set).
 JSON Output
 ===========
 
+.. _storage-layout-top-level:
+
 The storage layout of a contract can be requested via the :ref:`standard JSON interface <compiler-api>`.  The output is a JSON object containing two keys,
 ``storage`` and ``types``.  The ``storage`` object is an array where each
 element has the following form:
@@ -133,14 +139,24 @@ The given ``type``, in this case ``t_uint256`` represents an element in
 
 where
 
-- ``encoding`` tells how the data is stored
+- ``encoding`` how the data is encoded in storage, where the possible values are:
+
+  - ``inplace``: data is laid out contiguously in storage (see :ref:`above <storage-inplace-encoding>`)
+  - ``mapping``: Keccak-256 hash-based method (see :ref:`above <storage-hashed-encoding>`)
+  - ``dynamic_array``: Keccak-256 hash-based method (see :ref:`above <storage-hashed-encoding>`)
+
 - ``label`` is the canonical type name
 - ``numberOfBytes`` the number of bytes that this type occupies within a slot
 - ``numberOfSlots`` the number of slots that this type requires in storage
 
 Some types have extra information besides the four above. Mappings contain
 its ``key`` and ``value`` types, arrays have its ``base`` type, and structs
-list its ``members`` similarly to key ``storage``.
+list its ``members`` in the same format as the top-level ``storage``
+(see :ref:`above <storage-layout-top-level>`).
+
+.. note ::
+  The JSON output format of a contract's storage layout is still considered experimental
+  and is subject to change in non-breaking releases of Solidity.
 
 The following example shows a contract and its storage layout, containing
 value and reference types, types that are encoded packed, and nested types.

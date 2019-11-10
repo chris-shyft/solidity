@@ -35,8 +35,8 @@ Json::Value StorageLayout::generate(ContractDefinition const& _contractDef)
 	solAssert(contractType, "");
 
 	Json::Value variables(Json::arrayValue);
-	for (auto const& var: contractType->stateVariables())
-		variables.append(generate(*get<0>(var), get<1>(var), get<2>(var)));
+	for (auto [var, slot, offset]: contractType->stateVariables())
+		variables.append(generate(*var, slot, offset));
 
 	Json::Value layout;
 	layout["storage"] = move(variables);
@@ -67,7 +67,6 @@ void StorageLayout::generate(TypePointer _type)
 		return;
 
 	// Register it now to cut recursive visits.
-	//m_types[typeKeyName(_type)] = {};
 	Json::Value& typeInfo = m_types[typeKeyName(_type)];
 	typeInfo["label"] = _type->toString(true);
 	typeInfo["numberOfSlots"] = _type->storageSize().str();
