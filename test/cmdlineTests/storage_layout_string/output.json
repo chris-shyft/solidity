@@ -1,0 +1,4 @@
+{"contracts":{"fileA":{"A":{"storageLayout":{"storage":[{"ast_id":"3","contract":"A","label":"s1","offset":"0","slot":"0","type":"t_string_storage"},{"ast_id":"5","contract":"A","label":"s2","offset":"0","slot":"1","type":"t_string_storage"}],"types":{"t_bytes1":{"encoding":"inplace","label":"bytes1","numberOfBytes":"1"},"t_string_storage":{"base":"t_bytes1","encoding":"string","label":"string","numberOfBytes":"32"}}}}}},"errors":[{"component":"general","formattedMessage":"fileA:1:1: Warning: Source file does not specify required compiler version!
+contract A { string s1 = \"test\"; string s2; }
+^-------------------------------------------^
+","message":"Source file does not specify required compiler version!","severity":"warning","sourceLocation":{"end":45,"file":"fileA","start":0},"type":"Warning"}],"sources":{"fileA":{"id":0}}}

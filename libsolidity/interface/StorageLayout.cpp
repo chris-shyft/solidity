@@ -69,8 +69,7 @@ void StorageLayout::generate(TypePointer _type)
 	// Register it now to cut recursive visits.
 	Json::Value& typeInfo = m_types[typeKeyName(_type)];
 	typeInfo["label"] = _type->toString(true);
-	typeInfo["numberOfSlots"] = _type->storageSize().str();
-	typeInfo["numberOfBytes"] = to_string(_type->storageBytes());
+	typeInfo["numberOfBytes"] = (_type->storageBytes() * _type->storageSize()).str();
 
 	if (auto structType = dynamic_cast<StructType const*>(_type))
 	{
@@ -96,7 +95,9 @@ void StorageLayout::generate(TypePointer _type)
 	{
 		typeInfo["base"] = typeKeyName(arrayType->baseType());
 		generate(arrayType->baseType());
-		typeInfo["encoding"] = arrayType->isDynamicallySized() ? "dynamic_array" : "inplace";
+		typeInfo["encoding"] =
+			arrayType->isByteArray() ? "string" :
+			arrayType->isDynamicallySized() ? "dynamic_array" : "inplace";
 	}
 	else
 	{

@@ -134,20 +134,19 @@ The given ``type``, in this case ``t_uint256`` represents an element in
         "encoding":"inplace",
         "label":"uint256",
         "numberOfBytes":"32",
-        "numberOfSlots":"1"
     }
 
 where
 
 - ``encoding`` how the data is encoded in storage, where the possible values are:
 
-  - ``inplace``: data is laid out contiguously in storage (see :ref:`above <storage-inplace-encoding>`)
-  - ``mapping``: Keccak-256 hash-based method (see :ref:`above <storage-hashed-encoding>`)
-  - ``dynamic_array``: Keccak-256 hash-based method (see :ref:`above <storage-hashed-encoding>`)
+  - ``inplace``: data is laid out contiguously in storage (see :ref:`above <storage-inplace-encoding>`).
+  - ``mapping``: Keccak-256 hash-based method (see :ref:`above <storage-hashed-encoding>`).
+  - ``dynamic_array``: Keccak-256 hash-based method (see :ref:`above <storage-hashed-encoding>`).
+  - ``string``: single slot or Keccak-256 hash-based depending on the data size (see :ref:`above <bytes-and-string>`).
 
-- ``label`` is the canonical type name
-- ``numberOfBytes`` the number of bytes that this type occupies within a slot
-- ``numberOfSlots`` the number of slots that this type requires in storage
+- ``label`` is the canonical type name.
+- ``numberOfBytes`` is the number of used bytes. Note that if ``numberOfBytes > 32`` this means that more than one slot is used.
 
 Some types have extra information besides the four above. Mappings contain
 its ``key`` and ``value`` types, arrays have its ``base`` type, and structs
@@ -179,158 +178,184 @@ value and reference types, types that are encoded packed, and nested types.
         address addr;
         mapping (uint => mapping (address => bool)) map;
         uint[] array;
+        string s1;
+        bytes b1;
     }
 
 .. code::
 
-  "storageLayout": {
-    "storage": [
-      {
-        "ast_id": "14",
-        "contract": "A",
-        "label": "x",
-        "offset": "0",
-        "slot": "0",
-        "type": "t_uint256"
-      },
-      {
-        "ast_id": "16",
-        "contract": "A",
-        "label": "y",
-        "offset": "0",
-        "slot": "1",
-        "type": "t_uint256"
-      },
-      {
-        "ast_id": "18",
-        "contract": "A",
-        "label": "s",
-        "offset": "0",
-        "slot": "2",
-        "type": "t_struct(S)12_storage"
-      },
-      {
-        "ast_id": "20",
-        "contract": "A",
-        "label": "addr",
-        "offset": "0",
-        "slot": "6",
-        "type": "t_address"
-      },
-      {
-        "ast_id": "26",
-        "contract": "A",
-        "label": "map",
-        "offset": "0",
-        "slot": "7",
-        "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
-      },
-      {
-        "ast_id": "29",
-        "contract": "A",
-        "label": "array2",
-        "offset": "0",
-        "slot": "8",
-        "type": "t_array(t_uint256)dyn_storage"
-      }
-    ],
-    "types": {
-      "t_address": {
-        "encoding": "inplace",
-        "label": "address",
-        "numberOfBytes": "20",
-        "numberOfSlots": "1"
-      },
-      "t_array(t_uint256)2_storage": {
-        "base": "t_uint256",
-        "encoding": "inplace",
-        "label": "uint256[2]",
-        "numberOfBytes": "32",
-        "numberOfSlots": "2"
-      },
-      "t_array(t_uint256)dyn_storage": {
-        "base": "t_uint256",
-        "encoding": "dynamic_array",
-        "label": "uint256[]",
-        "numberOfBytes": "32",
-        "numberOfSlots": "1"
-      },
-      "t_bool": {
-        "encoding": "inplace",
-        "label": "bool",
-        "numberOfBytes": "1",
-        "numberOfSlots": "1"
-      },
-      "t_mapping(t_address,t_bool)": {
-        "encoding": "mapping",
-        "key": "t_address",
-        "label": "mapping(address => bool)",
-        "numberOfBytes": "32",
-        "numberOfSlots": "1",
-        "value": "t_bool"
-      },
-      "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
-        "encoding": "mapping",
-        "key": "t_uint256",
-        "label": "mapping(uint256 => mapping(address => bool))",
-        "numberOfBytes": "32",
-        "numberOfSlots": "1",
-        "value": "t_mapping(t_address,t_bool)"
-      },
-      "t_struct(S)12_storage": {
-        "encoding": "inplace",
-        "label": "struct A.S",
-        "members": [
-          {
-            "ast_id": "2",
-            "contract": "A",
-            "label": "a",
-            "offset": "0",
-            "slot": "0",
-            "type": "t_uint128"
-          },
-          {
-            "ast_id": "4",
-            "contract": "A",
-            "label": "b",
-            "offset": "16",
-            "slot": "0",
-            "type": "t_uint128"
-          },
-          {
-            "ast_id": "8",
-            "contract": "A",
-            "label": "array",
-            "offset": "0",
-            "slot": "1",
-            "type": "t_array(t_uint256)2_storage"
-          },
-          {
-            "ast_id": "11",
-            "contract": "A",
-            "label": "aaa",
-            "offset": "0",
-            "slot": "3",
-            "type": "t_array(t_uint256)dyn_storage"
-          }
-        ],
-        "numberOfBytes": "32",
-        "numberOfSlots": "4"
-      },
-      "t_uint128": {
-        "encoding": "inplace",
-        "label": "uint128",
-        "numberOfBytes": "16",
-        "numberOfSlots": "1"
-      },
-      "t_uint256": {
-        "encoding": "inplace",
-        "label": "uint256",
-        "numberOfBytes": "32",
-        "numberOfSlots": "1"
+    "storageLayout": {
+      "storage": [
+        {
+          "ast_id": "14",
+          "contract": "A",
+          "label": "x",
+          "offset": "0",
+          "slot": "0",
+          "type": "t_uint256"
+        },
+        {
+          "ast_id": "16",
+          "contract": "A",
+          "label": "y",
+          "offset": "0",
+          "slot": "1",
+          "type": "t_uint256"
+        },
+        {
+          "ast_id": "18",
+          "contract": "A",
+          "label": "s",
+          "offset": "0",
+          "slot": "2",
+          "type": "t_struct(S)12_storage"
+        },
+        {
+          "ast_id": "20",
+          "contract": "A",
+          "label": "addr",
+          "offset": "0",
+          "slot": "6",
+          "type": "t_address"
+        },
+        {
+          "ast_id": "26",
+          "contract": "A",
+          "label": "map",
+          "offset": "0",
+          "slot": "7",
+          "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))"
+        },
+        {
+          "ast_id": "29",
+          "contract": "A",
+          "label": "array",
+          "offset": "0",
+          "slot": "8",
+          "type": "t_array(t_uint256)dyn_storage"
+        },
+        {
+          "ast_id": "31",
+          "contract": "A",
+          "label": "s1",
+          "offset": "0",
+          "slot": "9",
+          "type": "t_string_storage"
+        },
+        {
+          "ast_id": "33",
+          "contract": "A",
+          "label": "b1",
+          "offset": "0",
+          "slot": "10",
+          "type": "t_bytes_storage"
+        }
+      ],
+      "types": {
+        "t_address": {
+          "encoding": "inplace",
+          "label": "address",
+          "numberOfBytes": "20"
+        },
+        "t_array(t_uint256)2_storage": {
+          "base": "t_uint256",
+          "encoding": "inplace",
+          "label": "uint256[2]",
+          "numberOfBytes": "64"
+        },
+        "t_array(t_uint256)dyn_storage": {
+          "base": "t_uint256",
+          "encoding": "dynamic_array",
+          "label": "uint256[]",
+          "numberOfBytes": "32"
+        },
+        "t_bool": {
+          "encoding": "inplace",
+          "label": "bool",
+          "numberOfBytes": "1"
+        },
+        "t_bytes1": {
+          "encoding": "inplace",
+          "label": "bytes1",
+          "numberOfBytes": "1"
+        },
+        "t_bytes_storage": {
+          "base": "t_bytes1",
+          "encoding": "string",
+          "label": "bytes",
+          "numberOfBytes": "32"
+        },
+        "t_mapping(t_address,t_bool)": {
+          "encoding": "mapping",
+          "key": "t_address",
+          "label": "mapping(address => bool)",
+          "numberOfBytes": "32",
+          "value": "t_bool"
+        },
+        "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+          "encoding": "mapping",
+          "key": "t_uint256",
+          "label": "mapping(uint256 => mapping(address => bool))",
+          "numberOfBytes": "32",
+          "value": "t_mapping(t_address,t_bool)"
+        },
+        "t_string_storage": {
+          "base": "t_bytes1",
+          "encoding": "string",
+          "label": "string",
+          "numberOfBytes": "32"
+        },
+        "t_struct(S)12_storage": {
+          "encoding": "inplace",
+          "label": "struct A.S",
+          "members": [
+            {
+              "ast_id": "2",
+              "contract": "A",
+              "label": "a",
+              "offset": "0",
+              "slot": "0",
+              "type": "t_uint128"
+            },
+            {
+              "ast_id": "4",
+              "contract": "A",
+              "label": "b",
+              "offset": "16",
+              "slot": "0",
+              "type": "t_uint128"
+            },
+            {
+              "ast_id": "8",
+              "contract": "A",
+              "label": "staticArray",
+              "offset": "0",
+              "slot": "1",
+              "type": "t_array(t_uint256)2_storage"
+            },
+            {
+              "ast_id": "11",
+              "contract": "A",
+              "label": "dynArray",
+              "offset": "0",
+              "slot": "3",
+              "type": "t_array(t_uint256)dyn_storage"
+            }
+          ],
+          "numberOfBytes": "128"
+        },
+        "t_uint128": {
+          "encoding": "inplace",
+          "label": "uint128",
+          "numberOfBytes": "16"
+        },
+        "t_uint256": {
+          "encoding": "inplace",
+          "label": "uint256",
+          "numberOfBytes": "32"
+        }
       }
     }
-  }
 
 .. index: memory layout
 
