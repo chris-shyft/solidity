@@ -366,7 +366,7 @@ std::vector<SimplificationRule<Pattern>> simplificationRuleListPart7(
 
 	std::vector<SimplificationRule<Pattern>> rules;
 	// Associative operations
-	for (auto [instr, f]: std::vector<std::pair<Instruction, std::function<Word(Word, Word)>>>{
+	for (auto&& [instr, f]: std::vector<std::pair<Instruction, std::function<Word(Word, Word)>>>{
 		{Instruction::ADD, std::plus<Word>()},
 		{Instruction::MUL, std::multiplies<Word>()},
 		{Instruction::AND, std::bit_and<Word>()},
