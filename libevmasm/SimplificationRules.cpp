@@ -123,7 +123,14 @@ bool Pattern::matches(Expression const& _expr, ExpressionClasses const& _classes
 		else if ((*m_matchGroups)[m_matchGroup]->id != _expr.id)
 			return false;
 	}
-	assertThrow(m_arguments.size() == 0 || _expr.arguments.size() == m_arguments.size(), OptimizerException, "");
+	if (!(m_arguments.size() == 0 || _expr.arguments.size() == m_arguments.size()))
+	{
+		cout << "arg error " << _expr.arguments.size() << " - " << m_arguments.size() << endl;
+		cout << toString() << endl;
+		cerr << "arg error " << _expr.arguments.size() << " - " << m_arguments.size() << endl;
+		cerr << toString() << endl;
+		assertThrow(false, OptimizerException, "");
+	}
 	for (size_t i = 0; i < m_arguments.size(); ++i)
 		if (!m_arguments[i].matches(_classes.representative(_expr.arguments[i]), _classes))
 			return false;
