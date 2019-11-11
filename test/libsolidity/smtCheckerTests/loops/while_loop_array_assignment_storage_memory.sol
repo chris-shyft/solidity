@@ -14,10 +14,12 @@ contract LoopFor2 {
 			c[i] = b[i];
 			++i;
 		}
+		// Fails as false positive.
 		assert(b[0] == c[0]);
 		assert(a[0] == 900);
 		assert(b[0] == 900);
 	}
 }
 // ----
-// Warning: (312-331): Assertion violation happens here
+// Warning: (295-315): Assertion violation happens here
+// Warning: (342-361): Assertion violation happens here
